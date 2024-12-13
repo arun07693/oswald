@@ -51,17 +51,12 @@ export default function SignIn(props) {
   const [isLinkSent, setIsLinkSent] = React.useState(false);
   const navigate = useNavigate();
 
-  // const actionCodeSettings = {
-  //   url: 'http://localhost:3001',
-  //   handleCodeInApp: true,
-  // };
-
   const actionCodeSettings = {
-    url: process.env.REACT_APP_MAGIC_LINK_URL,
-    handleCodeInApp: process.env.REACT_APP_HANDLE_CODE_IN_APP === 'true',
+    url: `${window.location.origin}/dashboard`,
+    handleCodeInApp: true,
+  };
 
-  }
-console.log('actionCodeSettings', actionCodeSettings);
+  console.log('actionCodeSettings', actionCodeSettings);
 
   const handleEmailPasswordSignIn = async (event) => {
     event.preventDefault();
@@ -122,6 +117,17 @@ console.log('actionCodeSettings', actionCodeSettings);
     };
     verifyMagicLink();
   }, [navigate]);
+
+  // Clear query parameters after successful redirect
+  React.useEffect(() => {
+    const clearQueryParams = () => {
+      const url = new URL(window.location.href);
+      if (url.search) {
+        window.history.replaceState({}, document.title, url.pathname);
+      }
+    };
+    clearQueryParams();
+  }, []);
 
   return (
     <Box sx={{ width: '100%' }}>
