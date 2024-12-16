@@ -1,0 +1,38 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
+      - name: Set up .env.pipeline as .env
+        run: |
+          rm -rf .env
+          cp .env.pipeline .env
+
+      - name: Build React App
+        run: |
+          npm install
+          npm run build
+
+      - name: Upload build to server
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ secrets.OSVALD_HOST }}
+          username: ${{ secrets.OSVALD_USERNAME }}
+          key: ${{ secrets.OSVALD_SSH_KEY }}
+          source: "dist/*"
+          target: "/var/www/osvald.io/build"
